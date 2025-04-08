@@ -9,9 +9,11 @@ import type { FileUploadConfig, UploadedFile } from './types';
 import { storeFile } from './lib/storage';
 
 // Base URL for the application
-const BASE_URL = import.meta.env.PROD 
-  ? 'https://one-time-link-generator.vercel.app'  // Production URL
-  : 'http://localhost:5174';  // Development URL
+const BASE_URL = import.meta.env.VITE_APP_URL || (
+  import.meta.env.PROD 
+    ? 'https://one-time-link-generator.vercel.app'
+    : 'http://localhost:5174'
+);
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
