@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { FileUploader } from './components/FileUploader';
+import FileUploader from './components/FileUploader';
 import { ConfigurationForm } from './components/ConfigurationForm';
 import { DownloadHandler } from './components/DownloadHandler';
 import { Shield } from 'lucide-react';
 import { Toaster, toast } from 'react-hot-toast';
 import type { FileUploadConfig, UploadedFile } from './types';
-
-// In-memory storage for demo purposes
-// In a real application, this would be a database
-export const fileStorage = new Map<string, { file: File; config: FileUploadConfig }>();
+import { storeFile } from './lib/storage';
 
 // Base URL for the application
-// In development, this will be localhost
-// In production, this will be the Vercel deployment URL
-const BASE_URL = process.env.NODE_ENV === 'production' 
-  ? window.location.origin 
-  : 'http://localhost:5174';
+const BASE_URL = import.meta.env.PROD 
+  ? 'https://one-time-link-generator.vercel.app'  // Production URL
+  : 'http://localhost:5174';  // Development URL
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -26,6 +21,8 @@ function App() {
     maxFileSize: 100 * 1024 * 1024, // 100MB
   });
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -42,21 +39,33 @@ function App() {
       return;
     }
 
+    setIsGenerating(true);
+    setUploadProgress(10);
+
     try {
       // Generate a unique token
       const token = Math.random().toString(36).substring(2);
       
-      // Store the file and config
-      fileStorage.set(token, { file: selectedFile, config });
+      setUploadProgress(20);
       
-      // Generate the download link using the base URL
+      // Store the file metadata in Supabase
+      await storeFile(token, selectedFile, config);
+      
+      setUploadProgress(60);
+      
+      // Generate the download link using BASE_URL
       const downloadLink = `${BASE_URL}/download/${token}`;
-      setGeneratedLink(downloadLink);
+      console.log('Generated link:', downloadLink); // Debug log
       
+      setUploadProgress(100);
+      setGeneratedLink(downloadLink);
       toast.success('Secure download link generated successfully!');
     } catch (error) {
       toast.error('Failed to generate secure download link');
       console.error('Error generating link:', error);
+    } finally {
+      setIsGenerating(false);
+      setUploadProgress(0);
     }
   };
 
@@ -150,7 +159,7 @@ function App() {
           />
           <Route
             path="/download/:token"
-            element={<DownloadHandler token={fileStorage.get('token')?.file ? 'token' : ''} />}
+            element={<DownloadHandler />}
           />
         </Routes>
       </div>

@@ -1,108 +1,89 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-
-// Import the fileStorage from App.tsx
-import { fileStorage } from '../App';
+import { getFile, incrementDownloadCount, getDownloadUrl } from '../lib/storage';
 
 export const DownloadHandler: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const handleDownload = async () => {
       if (!token) {
-        setError('Invalid download token');
+        toast.error('Invalid download token');
+        navigate('/');
         return;
       }
 
       try {
-        setIsDownloading(true);
+        console.log('Starting download process for token:', token);
         
-        // Get the stored file data
-        const storedData = fileStorage.get(token);
-        if (!storedData) {
-          setError('File not found or link has expired');
+        // Get file metadata
+        const fileData = await getFile(token);
+        
+        if (!fileData) {
+          console.error('No file data found for token:', token);
+          toast.error('Invalid or expired download link');
+          navigate('/');
           return;
         }
 
-        const { file, config } = storedData;
+        console.log('File metadata retrieved:', fileData);
 
-        // Check if the download limit has been reached
-        if (config.maxDownloads <= 0) {
-          setError('Maximum download limit reached');
+        // Get download URL
+        const downloadUrl = await getDownloadUrl(token, fileData.fileName);
+        
+        if (!downloadUrl) {
+          console.error('Failed to generate download URL for token:', token);
+          toast.error('Failed to generate download URL');
+          navigate('/');
           return;
         }
 
-        // Update the download count
-        config.maxDownloads--;
+        console.log('Download URL generated:', downloadUrl);
 
-        // Create a blob from the file
-        const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-        
-        // Create a download link
-        const url = window.URL.createObjectURL(blob);
+        // Increment download count
+        try {
+          await incrementDownloadCount(token);
+          console.log('Download count incremented for token:', token);
+        } catch (error) {
+          console.error('Error incrementing download count:', error);
+          // Continue with download even if count update fails
+        }
+
+        // Trigger download
         const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        
-        // Trigger the download
+        a.href = downloadUrl;
+        a.download = fileData.fileName;
         document.body.appendChild(a);
         a.click();
-        
-        // Cleanup
-        window.URL.revokeObjectURL(url);
         document.body.removeChild(a);
-        
-        toast.success('Download started!');
-        
-        // Redirect to home after a short delay
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-      } catch (err) {
-        setError('Failed to download file');
+
+        toast.success('File downloaded successfully!');
+        navigate('/');
+      } catch (error) {
+        console.error('Error downloading file:', error);
         toast.error('Failed to download file');
-        console.error('Download error:', err);
+        navigate('/');
       } finally {
-        setIsDownloading(false);
+        setIsLoading(false);
       }
     };
 
     handleDownload();
   }, [token, navigate]);
 
-  if (error) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
-          <p className="text-gray-600">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Return to Home
-          </button>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Preparing your download...</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-4">
-          {isDownloading ? 'Preparing download...' : 'Download complete!'}
-        </h2>
-        {isDownloading && (
-          <div className="mt-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+  return null;
 }; 

@@ -1,5 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from 'tailwindcss';
+import autoprefixer from 'autoprefixer';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -8,6 +10,14 @@ export default defineConfig({
     exclude: ['lucide-react'],
   },
   base: '/',
+  css: {
+    postcss: {
+      plugins: [
+        tailwindcss,
+        autoprefixer,
+      ],
+    },
+  },
   build: {
     outDir: 'dist',
     sourcemap: false,
@@ -19,7 +29,7 @@ export default defineConfig({
     }
   },
   server: {
-    port: 5173,
-    strictPort: true
+    port: 5174,
+    host: true
   }
 });

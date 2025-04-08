@@ -12,7 +12,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ config, on
     const { name, value } = e.target;
     onChange({
       ...config,
-      [name]: name === 'ipRestriction' ? value : Number(value),
+      [name]: name === 'maxFileSize' ? Number(value) * 1024 * 1024 : Number(value),
     });
   };
 
@@ -29,6 +29,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ config, on
             </label>
             <input
               type="number"
+              id="expirationTime"
               name="expirationTime"
               value={config.expirationTime}
               onChange={handleChange}
@@ -46,6 +47,7 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ config, on
             </label>
             <input
               type="number"
+              id="maxDownloads"
               name="maxDownloads"
               value={config.maxDownloads}
               onChange={handleChange}
@@ -70,6 +72,21 @@ export const ConfigurationForm: React.FC<ConfigurationFormProps> = ({ config, on
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
           </div>
+        </div>
+
+        <div>
+          <label htmlFor="maxFileSize" className="block text-sm font-medium text-gray-700">
+            Maximum File Size (MB)
+          </label>
+          <input
+            type="number"
+            id="maxFileSize"
+            name="maxFileSize"
+            value={config.maxFileSize / (1024 * 1024)}
+            onChange={handleChange}
+            min="1"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+          />
         </div>
       </div>
     </div>
