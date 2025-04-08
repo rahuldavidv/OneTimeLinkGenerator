@@ -190,32 +190,24 @@ export async function incrementDownloadCount(token: string): Promise<void> {
 }
 
 export async function getDownloadUrl(token: string, fileName: string): Promise<string | null> {
-  try {
-    console.log('Generating download URL for:', {
-      token,
-      fileName,
-      bucketName: BUCKET_NAME,
-      path: `${token}/${fileName}`
-    });
+  console.log('Generating download URL for:', { token, fileName });
 
+  try {
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
-      .createSignedUrl(`${token}/${fileName}`, 60); // URL valid for 60 seconds
+      .createSignedUrl(`${token}/${fileName}`, 3600); // URL expires in 1 hour
 
     if (error) {
-      console.error('Error generating download URL:', {
-        error,
-        message: error.message
-      });
+      console.error('Error generating download URL:', error);
       return null;
     }
 
-    if (!data) {
-      console.error('No data returned when generating download URL');
+    if (!data?.signedUrl) {
+      console.error('No signed URL generated');
       return null;
     }
 
-    console.log('Successfully generated download URL:', data.signedUrl);
+    console.log('Download URL generated successfully');
     return data.signedUrl;
   } catch (error) {
     console.error('Error in getDownloadUrl:', error);

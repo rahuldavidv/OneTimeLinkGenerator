@@ -10,7 +10,7 @@ import { storeFile } from './lib/storage';
 
 const BASE_URL = import.meta.env.VITE_APP_URL || (
   import.meta.env.PROD 
-    ? window.location.origin
+    ? 'https://one-time-link-generator.vercel.app'
     : 'http://localhost:5174'
 );
 

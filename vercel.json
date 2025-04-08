@@ -20,7 +20,7 @@
     }
   ],
   "env": {
-    "VITE_APP_URL": "${VERCEL_URL}",
+    "VITE_APP_URL": "https://one-time-link-generator.vercel.app",
     "VITE_SUPABASE_URL": "${VITE_SUPABASE_URL}",
     "VITE_SUPABASE_ANON_KEY": "${VITE_SUPABASE_ANON_KEY}"
   }
