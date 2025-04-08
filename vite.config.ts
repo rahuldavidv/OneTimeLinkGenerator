@@ -9,7 +9,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
-  base: '/',
+  base: './',
   css: {
     postcss: {
       plugins: [
