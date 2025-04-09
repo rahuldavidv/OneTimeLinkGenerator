@@ -7,12 +7,10 @@ export const DownloadHandler: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleDownload = async () => {
       if (!token) {
-        setError('Invalid download token');
         toast.error('Invalid download token');
         navigate('/');
         return;
@@ -25,7 +23,6 @@ export const DownloadHandler: React.FC = () => {
         const fileData = await getFile(token);
         
         if (!fileData) {
-          setError('Invalid or expired download link');
           toast.error('Invalid or expired download link');
           navigate('/');
           return;
@@ -33,31 +30,10 @@ export const DownloadHandler: React.FC = () => {
 
         console.log('File metadata retrieved:', fileData);
 
-        // Check if file has expired
-        const createdAt = new Date(fileData.createdAt);
-        const expirationTime = fileData.config.expirationTime * 60 * 1000; // Convert minutes to milliseconds
-        const isExpired = Date.now() - createdAt.getTime() > expirationTime;
-
-        if (isExpired) {
-          setError('Download link has expired');
-          toast.error('Download link has expired');
-          navigate('/');
-          return;
-        }
-
-        // Check if max downloads reached
-        if (fileData.downloadCount >= fileData.config.maxDownloads) {
-          setError('Maximum downloads reached');
-          toast.error('Maximum downloads reached');
-          navigate('/');
-          return;
-        }
-
         // Get download URL
         const downloadUrl = await getDownloadUrl(token, fileData.fileName);
         
         if (!downloadUrl) {
-          setError('Failed to generate download URL');
           toast.error('Failed to generate download URL');
           navigate('/');
           return;
@@ -74,17 +50,16 @@ export const DownloadHandler: React.FC = () => {
           // Continue with download even if count update fails
         }
 
-        // Trigger download
+        // Use window.location to trigger the download
         window.location.href = downloadUrl;
         
-        // Navigate back to home after a short delay
+        // Add a small delay before redirecting back to home
         setTimeout(() => {
           navigate('/');
-        }, 2000);
+        }, 1000);
 
       } catch (error) {
         console.error('Error downloading file:', error);
-        setError('Failed to download file');
         toast.error('Failed to download file');
         navigate('/');
       } finally {
@@ -101,22 +76,6 @@ export const DownloadHandler: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Preparing your download...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600">{error}</p>
-          <button
-            onClick={() => navigate('/')}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
-            Return to Home
-          </button>
         </div>
       </div>
     );

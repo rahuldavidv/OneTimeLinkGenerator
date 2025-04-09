@@ -12,10 +12,14 @@
   ],
   "routes": [
     {
-      "handle": "filesystem"
+      "src": "/download/(.*)",
+      "dest": "/index.html",
+      "headers": {
+        "Content-Type": "text/html"
+      }
     },
     {
-      "src": "/.*",
+      "src": "/(.*)",
       "dest": "/index.html"
     }
   ],
