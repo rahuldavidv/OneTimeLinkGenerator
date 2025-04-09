@@ -8,15 +8,20 @@
         "distDir": "dist",
         "buildCommand": "npm run build"
       }
+    },
+    {
+      "src": "api/download.ts",
+      "use": "@vercel/node"
     }
   ],
   "routes": [
     {
+      "src": "/api/download/(.*)",
+      "dest": "/api/download.ts"
+    },
+    {
       "src": "/download/(.*)",
-      "dest": "/index.html",
-      "headers": {
-        "Content-Type": "text/html"
-      }
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
