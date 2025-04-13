@@ -11,8 +11,19 @@
   ],
   "routes": [
     {
-      "src": "/(.*\\.js)$",
-      "headers": { "Content-Type": "application/javascript" }
+      "src": "/assets/(.*)",
+      "headers": { "cache-control": "public, max-age=31536000, immutable" },
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/(.*\\.js)",
+      "headers": { "Content-Type": "application/javascript" },
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.*\\.css)",
+      "headers": { "Content-Type": "text/css" },
+      "dest": "/$1"
     },
     {
       "src": "/(.*)",
@@ -20,8 +31,6 @@
     }
   ],
   "env": {
-    "VITE_APP_URL": "https://one-time-link-generator.vercel.app",
-    "VITE_SUPABASE_URL": "${VITE_SUPABASE_URL}",
-    "VITE_SUPABASE_ANON_KEY": "${VITE_SUPABASE_ANON_KEY}"
+    "VITE_APP_URL": "https://one-time-link-generator-rahul.vercel.app"
   }
 }
