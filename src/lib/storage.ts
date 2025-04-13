@@ -190,26 +190,30 @@ export async function getDownloadUrl(token: string, fileName: string): Promise<s
   console.log('Generating download URL for:', { token, fileName });
 
   try {
-    // Increase expiration time to 24 hours
+    // Try to download the file directly
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
-      .createSignedUrl(`${token}/${fileName}`, 86400); // URL expires in 24 hours
+      .download(`${token}/${fileName}`);
 
     if (error) {
-      console.error('Error generating download URL:', {
+      console.error('Error downloading file:', {
         error,
         message: error.message
       });
       return null;
     }
 
-    if (!data?.signedUrl) {
-      console.error('No signed URL generated');
+    if (!data) {
+      console.error('No file data received');
       return null;
     }
 
+    // Create a blob URL from the file data
+    const blob = new Blob([data], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    
     console.log('Download URL generated successfully');
-    return data.signedUrl;
+    return url;
   } catch (error) {
     console.error('Error in getDownloadUrl:', error);
     return null;

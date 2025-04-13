@@ -70,8 +70,17 @@ export const DownloadHandler: React.FC = () => {
         a.click();
         document.body.removeChild(a);
 
+        // Clean up the blob URL
+        if (downloadUrl.startsWith('blob:')) {
+          URL.revokeObjectURL(downloadUrl);
+        }
+
         toast.success('File downloaded successfully!');
-        navigate('/');
+        
+        // Add a small delay before navigating away to ensure the download starts
+        setTimeout(() => {
+          navigate('/');
+        }, 1000);
 
       } catch (error) {
         console.error('Error downloading file:', error);
