@@ -7,10 +7,12 @@ export const DownloadHandler: React.FC = () => {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const handleDownload = async () => {
       if (!token) {
+        setError('Invalid download token');
         toast.error('Invalid download token');
         navigate('/');
         return;
@@ -23,6 +25,7 @@ export const DownloadHandler: React.FC = () => {
         const fileData = await getFile(token);
         
         if (!fileData) {
+          setError('Invalid or expired download link');
           toast.error('Invalid or expired download link');
           navigate('/');
           return;
@@ -30,10 +33,19 @@ export const DownloadHandler: React.FC = () => {
 
         console.log('File metadata retrieved:', fileData);
 
+        // Check if download limit has been reached
+        if (fileData.downloadCount >= fileData.config.maxDownloads) {
+          setError('Download limit reached');
+          toast.error('Download limit reached');
+          navigate('/');
+          return;
+        }
+
         // Get download URL
         const downloadUrl = await getDownloadUrl(token, fileData.fileName);
         
         if (!downloadUrl) {
+          setError('Failed to generate download URL');
           toast.error('Failed to generate download URL');
           navigate('/');
           return;
@@ -63,7 +75,8 @@ export const DownloadHandler: React.FC = () => {
 
       } catch (error) {
         console.error('Error downloading file:', error);
-        toast.error('Failed to download file');
+        setError('Failed to download file. Please try again.');
+        toast.error('Failed to download file. Please try again.');
         navigate('/');
       } finally {
         setIsLoading(false);
@@ -79,6 +92,23 @@ export const DownloadHandler: React.FC = () => {
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Preparing your download...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-red-600 text-xl font-semibold mb-4">Error</div>
+          <p className="text-gray-600">{error}</p>
+          <button
+            onClick={() => navigate('/')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Return to Home
+          </button>
         </div>
       </div>
     );

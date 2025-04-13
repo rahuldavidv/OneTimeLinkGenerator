@@ -98,8 +98,7 @@ export async function getFile(token: string): Promise<StoredFile | null> {
     if (dbError) {
       console.error('Error fetching file metadata from database:', {
         error: dbError,
-        message: dbError.message,
-        details: dbError.details
+        message: dbError.message
       });
       throw dbError;
     }
@@ -159,8 +158,7 @@ export async function incrementDownloadCount(token: string): Promise<void> {
     if (fetchError) {
       console.error('Error fetching current download count:', {
         error: fetchError,
-        message: fetchError.message,
-        details: fetchError.details
+        message: fetchError.message
       });
       throw fetchError;
     }
@@ -176,8 +174,7 @@ export async function incrementDownloadCount(token: string): Promise<void> {
     if (updateError) {
       console.error('Error incrementing download count:', {
         error: updateError,
-        message: updateError.message,
-        details: updateError.details
+        message: updateError.message
       });
       throw updateError;
     }
@@ -193,12 +190,16 @@ export async function getDownloadUrl(token: string, fileName: string): Promise<s
   console.log('Generating download URL for:', { token, fileName });
 
   try {
+    // Increase expiration time to 24 hours
     const { data, error } = await supabase.storage
       .from(BUCKET_NAME)
-      .createSignedUrl(`${token}/${fileName}`, 3600); // URL expires in 1 hour
+      .createSignedUrl(`${token}/${fileName}`, 86400); // URL expires in 24 hours
 
     if (error) {
-      console.error('Error generating download URL:', error);
+      console.error('Error generating download URL:', {
+        error,
+        message: error.message
+      });
       return null;
     }
 
