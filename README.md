@@ -1,65 +1,65 @@
-# Secure File Download Generator
+# 🔐 One-Time Link Generator
 
-A React application that generates secure download links for files with configurable expiration times and download limits.
+A minimal, secure, and easy-to-use web application to generate one-time access links for sharing sensitive information. Once a link is accessed, the information is no longer available—ensuring confidentiality and one-time visibility.
 
-## Features
+## 🌐 Live Demo
 
-- File upload with size limits
-- Configurable expiration time
-- Configurable maximum download count
-- Secure download links
-- File storage in Supabase
-- Download tracking
+👉 [Try it Live](https://one-time-link-generator.vercel.app/)
 
-## Prerequisites
+## ✨ Features
 
-- Node.js (v14 or higher)
-- npm (v6 or higher)
-- Supabase account
+- 🧪 One-time access links
+- 🔒 End-to-end encryption
+- ⏳ Optional expiration time
+- 💨 Lightweight and fast
+- 💻 Simple UI/UX for seamless user experience
 
-## Setup
+## 🚀 Tech Stack
 
-1. Clone the repository:
+- **Frontend:** React.js, Next.js, Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + API)
+- **Hosting:** Vercel
+
+## 🛠️ Setup & Installation
+
+To run this project locally:
+
 ```bash
-git clone <repository-url>
-cd secure-file-download
-```
+# Clone the repo
+git clone https://github.com/rahuldavidv/OneTimeLinkGenerator.git
 
-2. Install dependencies:
-```bash
+# Navigate into the project folder
+cd OneTimeLinkGenerator
+
+# Install dependencies
 npm install
-```
 
-3. Create a Supabase project:
-   - Go to [Supabase](https://supabase.com) and create a new project
-   - Get your project URL and anon key from the project settings
-
-4. Create a `.env` file in the root directory:
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-5. Set up Supabase:
-   - Create a storage bucket named 'files'
-   - Run the SQL migration in `supabase/migrations/20240101000000_create_file_links.sql`
-
-6. Start the development server:
-```bash
+# Run the development server
 npm run dev
 ```
+Then open http://localhost:3000 in your browser.
 
-## Environment Variables
+⚙️ Environment Variables
+Create a .env.local file in the root directory and add your Supabase credentials:
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
+```
+You can find these keys in your Supabase project settings.
 
-- `VITE_SUPABASE_URL`: Your Supabase project URL
-- `VITE_SUPABASE_ANON_KEY`: Your Supabase anonymous key
+📄 License
 
-## Project Structure
+This project is open-source under the MIT License.
 
-- `src/App.tsx`: Main application component
-- `src/components/FileUploader.tsx`: File upload component
-- `src/components/ConfigurationForm.tsx`: Configuration form component
-- `src/components/DownloadHandler.tsx`: Download handler component
-- `src/types.ts`: TypeScript type definitions
-- `supabase/migrations/`: Database migration files
+🧑‍🎨 Designed and Developed by [Om Sudhamsh](http://www.github.com/omsudhamsh)
+> 
+---
 
+Let me know if you'd like:
+
+- Deployment steps for Vercel
+- Supabase table schema/example SQL
+- Dark mode support info
+- Custom badge/header design
+
+Happy to help with any of that!
